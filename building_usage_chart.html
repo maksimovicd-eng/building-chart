@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building Usage</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f11;
+    --surface: #1a1a1f;
+    --border: #2a2a32;
+    --residential: #4fffb0;
+    --commercial: #ff6b35;
+    --industrial: #6c8eff;
+    --mixed: #ffd166;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(79,255,176,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header {
+    margin-bottom: 28px;
+  }
+
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 28px;
+  }
+
+  .chart-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .chart-center-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .chart-center-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .legend-item:hover {
+    transform: translateY(-1px);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .legend-info { flex: 1; min-width: 0; }
+
+  .legend-name {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .legend-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="label">Urban Analysis</div>
+    <div class="title">Building Usage</div>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="pieChart"></canvas>
+    <div class="chart-center">
+      <div class="chart-center-value" id="centerVal">100%</div>
+      <div class="chart-center-label">Total</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--residential)"></div>
+      <div class="legend-info">
+        <div class="legend-name">Residential</div>
+        <div class="legend-val">42%</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--commercial)"></div>
+      <div class="legend-info">
+        <div class="legend-name">Commercial</div>
+        <div class="legend-val">28%</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--industrial)"></div>
+      <div class="legend-info">
+        <div class="legend-name">Industrial</div>
+        <div class="legend-val">18%</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--mixed)"></div>
+      <div class="legend-info">
+        <div class="legend-name">Mixed</div>
+        <div class="legend-val">12%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Data source: ArcGIS Feature Layer</div>
+</div>
+
+<script>
+  const data = {
+    labels: ['Residential', 'Commercial', 'Industrial', 'Mixed'],
+    values: [42, 28, 18, 12],
+    colors: ['#4fffb0', '#ff6b35', '#6c8eff', '#ffd166']
+  };
+
+  const ctx = document.getElementById('pieChart').getContext('2d');
+
+  const chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        data: data.values,
+        backgroundColor: data.colors,
+        borderWidth: 3,
+        borderColor: '#1a1a1f',
+        hoverBorderWidth: 3,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      cutout: '68%',
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f0f11',
+          borderColor: '#2a2a32',
+          borderWidth: 1,
+          titleColor: '#e8e8f0',
+          bodyColor: '#6b6b80',
+          titleFont: { family: 'Syne', size: 14, weight: '700' },
+          bodyFont: { family: 'DM Mono', size: 11 },
+          padding: 12,
+          callbacks: {
+            label: ctx => `  ${ctx.parsed}%`
+          }
+        }
+      },
+      onHover: (event, elements) => {
+        const centerVal = document.getElementById('centerVal');
+        if (elements.length > 0) {
+          const idx = elements[0].index;
+          centerVal.textContent = data.values[idx] + '%';
+          centerVal.style.color = data.colors[idx];
+        } else {
+          centerVal.textContent = '100%';
+          centerVal.style.color = '#e8e8f0';
+        }
+      },
+      animation: {
+        animateRotate: true,
+        duration: 900,
+        easing: 'easeInOutQuart'
+      }
+    }
+  });
+</script>
+</body>
+</html>
